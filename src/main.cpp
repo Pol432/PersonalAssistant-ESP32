@@ -9,10 +9,8 @@ BLEServer *pServer = NULL;
 BLECharacteristic *ssid_characteristic = NULL;
 BLECharacteristic *password_characteristic = NULL;
 
-String ssidValue = "";
-String passwordValue = "";
-// See the following for generating UUIDs:
-// https://www.uuidgenerator.net/
+String ssidValue = "Test_SSID";
+String passwordValue = "Test_Password";
 
 #define SERVICE_UUID "6bae1e64-1b78-452c-b129-fb9a4152f303"
 
@@ -89,28 +87,15 @@ void setup()
   // Start advertising
   pServer->getAdvertising()->start();
 
-  /*
-    message_characteristic->setValue("Message one");
-    message_characteristic->setCallbacks(new CharacteristicsCallbacks());
+  ssid_characteristic->setValue("");
+  ssid_characteristic->setCallbacks(new CharacteristicsCallbacks());
 
-    box_characteristic->setValue("0");
-    box_characteristic->setCallbacks(new CharacteristicsCallbacks());
-   */
+  password_characteristic->setValue("");
+  password_characteristic->setCallbacks(new CharacteristicsCallbacks());
 
   Serial.println("Waiting for a client connection to notify...");
 }
 
 void loop()
 {
-  /*
-  message_characteristic->setValue("Message one");
-  message_characteristic->notify();
-
-  delay(1000);
-
-  message_characteristic->setValue("Message Two");
-  message_characteristic->notify();
-
-  delay(1000);
-  */
 }
