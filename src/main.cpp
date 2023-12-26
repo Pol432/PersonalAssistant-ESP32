@@ -3,14 +3,19 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 
+#include <Preferences.h>
+
+// Preferences SECTION
+Preferences memory;
+
 // BLE SECTION
 BLEServer *pServer = NULL;
 
 BLECharacteristic *ssid_characteristic = NULL;
 BLECharacteristic *password_characteristic = NULL;
 
-String ssidValue = "Test_SSID";
-String passwordValue = "Test_Password";
+String ssidValue = "";
+String passwordValue = "";
 
 #define SERVICE_UUID "6bae1e64-1b78-452c-b129-fb9a4152f303"
 
@@ -39,15 +44,23 @@ class CharacteristicsCallbacks : public BLECharacteristicCallbacks
 
     if (pCharacteristic == ssid_characteristic)
     {
+      // Saving ssidValue to the BLE
       ssidValue = pCharacteristic->getValue().c_str();
       ssid_characteristic->setValue(const_cast<char *>(ssidValue.c_str()));
       ssid_characteristic->notify();
+
+      // Saving ssidValue to the flash memory
+      memory.putString("ssid", ssidValue);
     }
     else if (pCharacteristic == password_characteristic)
     {
+      // Saving passwordValue to the BLE
       passwordValue = pCharacteristic->getValue().c_str();
       password_characteristic->setValue(const_cast<char *>(passwordValue.c_str()));
       password_characteristic->notify();
+
+      // Saving passwordValue to the flash memory
+      memory.putString("password", passwordValue);
     }
   }
 };
@@ -56,6 +69,16 @@ void setup()
 {
   // Initialing serial port
   Serial.begin(115200);
+
+  // Initialize Preferences
+  memory.begin("my-app", false);
+
+  // Remove all preferences under the opened namespace
+  // preferences.clear();
+
+  // Getting current ssid and password values
+  ssidValue = memory.getString("ssid", "");
+  passwordValue = memory.getString("password", "");
 
   // Create the BLE Device
   BLEDevice::init("BLEExample");
@@ -87,10 +110,10 @@ void setup()
   // Start advertising
   pServer->getAdvertising()->start();
 
-  ssid_characteristic->setValue("");
+  ssid_characteristic->setValue(const_cast<char *>(ssidValue.c_str()));
   ssid_characteristic->setCallbacks(new CharacteristicsCallbacks());
 
-  password_characteristic->setValue("");
+  password_characteristic->setValue(const_cast<char *>(passwordValue.c_str()));
   password_characteristic->setCallbacks(new CharacteristicsCallbacks());
 
   Serial.println("Waiting for a client connection to notify...");
