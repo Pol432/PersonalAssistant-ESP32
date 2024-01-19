@@ -4,19 +4,19 @@
 #include <WString.h>
 #include <Arduino.h>
 
-int Pin1 = 13; // IN1 is connected to 13
-int Pin2 = 12; // IN2 is connected to 12
-int Pin3 = 14; // IN3 is connected to 14
-int Pin4 = 27; // IN4 is connected to 27
+extern int Pin1;
+extern int Pin2;
+extern int Pin3;
+extern int Pin4;
 
-int pole1[] = {0, 0, 0, 0, 0, 1, 1, 1, 0}; // pole1, 8 step values
-int pole2[] = {0, 0, 0, 1, 1, 1, 0, 0, 0}; // pole2, 8 step values
-int pole3[] = {0, 1, 1, 1, 0, 0, 0, 0, 0}; // pole3, 8 step values
-int pole4[] = {1, 1, 0, 0, 0, 0, 0, 1, 0}; // pole4, 8 step values
+extern int pole1[];
+extern int pole2[];
+extern int pole3[];
+extern int pole4[];
 
-String buttonTitle1[] = {"CCW", "CW"};
-String buttonTitle2[] = {"CCW", "CW"};
-String argId[] = {"ccw", "cw"};
+extern String buttonTitle1[];
+extern String buttonTitle2[];
+extern String argId[];
 
 class StepperMotor
 {

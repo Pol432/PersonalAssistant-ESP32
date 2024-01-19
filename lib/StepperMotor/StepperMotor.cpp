@@ -1,6 +1,20 @@
 #include "StepperMotor.h"
 #include <Arduino.h>
 
+int Pin1 = 13;
+int Pin2 = 12;
+int Pin3 = 14;
+int Pin4 = 27;
+
+int pole1[] = {0, 0, 0, 0, 0, 1, 1, 1, 0};
+int pole2[] = {0, 0, 0, 1, 1, 1, 0, 0, 0};
+int pole3[] = {0, 1, 1, 1, 0, 0, 0, 0, 0};
+int pole4[] = {1, 1, 0, 0, 0, 0, 0, 1, 0};
+
+String buttonTitle1[] = {"CCW", "CW"};
+String buttonTitle2[] = {"CCW", "CW"};
+String argId[] = {"ccw", "cw"};
+
 void StepperMotor::driverStepper(int c)
 {
     digitalWrite(Pin1, pole1[c]);
