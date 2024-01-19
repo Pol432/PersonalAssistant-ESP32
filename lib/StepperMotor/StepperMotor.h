@@ -21,6 +21,7 @@ String argId[] = {"ccw", "cw"};
 class StepperMotor
 {
 public:
+    void begin();
     void moveCurtains(String dir);
     void driverStepper(int c);
 
