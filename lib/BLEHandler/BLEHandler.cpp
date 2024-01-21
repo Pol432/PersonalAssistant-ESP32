@@ -1,4 +1,52 @@
 #include "BLEHandler.h"
+#include <Arduino.h>
+#include "PreferencesHandler.h"
+
+BLEServer *pServer = NULL;
+BLECharacteristic *ssid_characteristic = NULL;
+BLECharacteristic *password_characteristic = NULL;
+
+String ssidValue = "";
+String passwordValue = "";
+
+void updateSSID(const char *newSSID)
+{
+    ssidValue = newSSID;
+    ssid_characteristic->setValue(const_cast<char *>(ssidValue.c_str()));
+    ssid_characteristic->notify();
+    memory.putString("ssid", ssidValue);
+
+    Serial.print("SSID WRITTEN: ");
+    Serial.println(memory.getString("ssid"));
+}
+
+void updatePassword(const char *newPassword)
+{
+    passwordValue = newPassword;
+    password_characteristic->setValue(const_cast<char *>(passwordValue.c_str()));
+    password_characteristic->notify();
+    memory.putString("password", passwordValue);
+
+    Serial.print("PASSWORD WRITTEN: ");
+    Serial.println(memory.getString("password"));
+}
+
+void CharacteristicsCallbacks::onWrite(BLECharacteristic *pCharacteristic)
+{
+    Serial.print("Value Written ");
+    Serial.println(pCharacteristic->getValue().c_str());
+
+    if (pCharacteristic == ssid_characteristic)
+    {
+        updateSSID(pCharacteristic->getValue().c_str());
+    }
+    else if (pCharacteristic == password_characteristic)
+    {
+        updatePassword(pCharacteristic->getValue().c_str());
+    }
+
+    Serial.println("FINISH BLE WRITE");
+}
 
 void MyServerCallbacks::onConnect(BLEServer *pServer)
 {
@@ -10,31 +58,8 @@ void MyServerCallbacks::onDisconnect(BLEServer *pServer)
     Serial.println("Disconnected");
 }
 
-void CharacteristicsCallbacks::onWrite(BLECharacteristic *pCharacteristic)
+void initBLE()
 {
-    Serial.print("Value Written ");
-    Serial.println(pCharacteristic->getValue().c_str());
-}
-
-BLEHandler::BLEHandler()
-{
-    // Constructor
-    ssidValue = "";
-    passwordValue = "";
-}
-
-void BLEHandler::begin()
-{
-    // Initialize Preferences
-    memory.begin("my-app", false);
-
-    // Remove all preferences under the opened namespace
-    // preferences.clear();
-
-    // Getting current ssid and password values
-    ssidValue = memory.getString("ssid", "");
-    passwordValue = memory.getString("password", "");
-
     // Create the BLE Device
     BLEDevice::init("BLEExample");
 
@@ -67,24 +92,12 @@ void BLEHandler::begin()
     // Start advertising
     pServer->getAdvertising()->start();
 
-    ssid_characteristic->setValue(const_cast<char *>(ssidValue.c_str()));
     ssid_characteristic->setCallbacks(new CharacteristicsCallbacks());
-
-    password_characteristic->setValue(const_cast<char *>(passwordValue.c_str()));
     password_characteristic->setCallbacks(new CharacteristicsCallbacks());
 
     Serial.println("Waiting for a client connection to notify...");
 }
 
-void BLEHandler::handleBLE()
+void handleBLE()
 {
-    // pServer->handleEvents();
-}
-
-void BLEHandler::stopBLE()
-{
-    // Stop BLE code here...
-    pServer->getAdvertising()->stop();
-    // pServer->disconnect();
-    // pServer->stop();  // Stop the BLE server
 }

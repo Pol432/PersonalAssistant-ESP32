@@ -1,19 +1,21 @@
 #include <Arduino.h>
 #include "BLEHandler.h"
-#include "StepperMotor.h"
+#include "PreferencesHandler.h"
+// #include "StepperMotor.h"
 
-BLEHandler bleHandler;
-StepperMotor stepperMotor;
+// StepperMotor stepperMotor;
 
 // Preferences SECTION
-Preferences memory;
+// Preferences memory;
 String ssid;
 String password;
 
 void setup()
 {
   Serial.begin(115200);
-  memory.begin("app", false);
+  initPreferences();
+
+  // memory.begin("my-app", false);
 
   // Getting Wi-Fi info
   ssid = memory.getString("ssid", "");
@@ -23,13 +25,12 @@ void setup()
   if (ssid == "" || password == "")
   {
     Serial.println("SSID and/or Password not found: Starting BLE");
-    bleHandler.begin();
+    initBLE();
 
     // Wait for BLE to set ssid and password
     while (ssid == "" || password == "")
     {
-      bleHandler.handleBLE(); // Handle BLE events
-
+      handleBLE();
       // Check if keys are present before retrieving
       if (!memory.getUInt("ssid", 0) == 0)
         ssid = memory.getString("ssid", "");
@@ -39,12 +40,15 @@ void setup()
 
       delay(10);
     }
-
-    Serial.println("Added ssid and password");
   }
 
+  Serial.println("SSID and Password foud!");
+  Serial.println(memory.getString("ssid", ""));
+  Serial.println(memory.getString("password", ""));
+  Serial.println();
+
   // Initialize the stepper motor
-  stepperMotor.begin();
+  // stepperMotor.begin();
 }
 
 void loop()
