@@ -8,7 +8,7 @@
 class Device
 {
 public:
-    Device(String name, int user_id, int room);
+    Device(String name, int user_id, int room, int stateSize);
 
     void createState(int stateID, String name, String stateType, String stateData, String iconName = "");
     void createDevice();
@@ -18,11 +18,12 @@ private:
 
     String name;
     String code;
+    int stateSize;
     int user_id;
     int room;
 
     String deviceData[2];
-    String states[3][4];
+    String **states;
     HTTPClient http;
 };
 
