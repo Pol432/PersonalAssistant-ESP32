@@ -1,28 +1,27 @@
 #include <Arduino.h>
+
 #include "BLEHandler.h"
 #include "PreferencesHandler.h"
-// #include "StepperMotor.h"
+#include "StepperMotor.h"
+#include "Device.h"
 
-// StepperMotor stepperMotor;
+StepperMotor stepperMotor;
 
-// Preferences SECTION
-// Preferences memory;
 String ssid;
 String password;
+bool created;
 
 void setup()
 {
   Serial.begin(115200);
   initPreferences();
 
-  // memory.begin("my-app", false);
-
   // Getting Wi-Fi info
   ssid = memory.getString("ssid", "");
   password = memory.getString("password", "");
 
   // If ssid or password weren't set before, wait for Bluetooth to set them
-  if (ssid == "" || password == "")
+  if (password == "" || ssid == "")
   {
     Serial.println("SSID and/or Password not found: Starting BLE");
     initBLE();
@@ -40,12 +39,23 @@ void setup()
 
       delay(10);
     }
+    memory.putBool("created", true);
   }
 
-  Serial.println("SSID and Password foud!");
-  Serial.println(memory.getString("ssid", ""));
-  Serial.println(memory.getString("password", ""));
-  Serial.println();
+  Serial.println("Staerting connection");
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED)
+  { // Check for the connection
+    delay(1000);
+    Serial.println("Connecting to WiFi..");
+  }
+
+  String name = "cortina_inteligente";
+
+  Device myDevice(name, 4, 1);
+  myDevice.createState(1, "status", "TEXT", "open", "power");
+  myDevice.createDevice();
 
   // Initialize the stepper motor
   // stepperMotor.begin();
