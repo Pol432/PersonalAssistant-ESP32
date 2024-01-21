@@ -42,7 +42,7 @@ void setup()
     memory.putBool("created", true);
   }
 
-  Serial.println("Staerting connection");
+  Serial.println("Starting connection");
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED)
@@ -51,11 +51,11 @@ void setup()
     Serial.println("Connecting to WiFi..");
   }
 
-  String name = "cortina_inteligente";
+  String name = "cortina";
 
-  Device myDevice(name, 4, 1);
+  Device myDevice(name, 4, 1, 1);
   myDevice.createState(1, "status", "TEXT", "open", "power");
-  myDevice.createDevice();
+  // myDevice.createDevice();
 
   // Initialize the stepper motor
   // stepperMotor.begin();
