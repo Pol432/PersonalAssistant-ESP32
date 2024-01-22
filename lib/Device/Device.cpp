@@ -1,4 +1,5 @@
 #include "Device.h"
+#include "PreferencesHandler.h"
 #include <Arduino.h>
 
 String device_states[4] = {"name", "icon_name", "state_type", "data"};
@@ -41,7 +42,6 @@ void Device::createDevice()
     deviceData[1] = code;
 
     String data = "{\"name\": \"" + String(name) + "\", \"device_code\": \"" + String(code) + "\", \"states\": [";
-    Serial.println("After data variable");
 
     for (int i = 0; i < stateSize; i++)
     {
@@ -56,27 +56,91 @@ void Device::createDevice()
         data += i == stateSize - 1 ? String("}") : String("},");
     }
 
-    Serial.println("After adding states to data");
     data += "]}";
-    Serial.println(data);
 
     http.begin("http://192.168.1.8:5000/api/device/" + String(user_id) + "/" + String(room));
     http.addHeader("Content-Type", "application/json");
-    Serial.println("After beggining http");
 
     int httpResponseCode = http.PUT(String(data));
-    Serial.println("After PUT request");
 
     if (httpResponseCode > 0)
     {
         String response = http.getString();
         Serial.println(httpResponseCode);
+        String idValue = response.substring(response.indexOf("\"id\":") + 6, response.indexOf(",", response.indexOf("\"id\":")));
+        String deviceCodeValue = response.substring(response.indexOf("\"device_code\":") + 15, response.indexOf(",", response.indexOf("\"device_code\":")));
         Serial.println(response);
+        memory.putInt("id", idValue.toInt());
+        memory.putString("code", idValue);
     }
     else
     {
         Serial.print("Error on sending POST: ");
         Serial.println(httpResponseCode);
+    }
+
+    http.end();
+}
+
+void Device::init()
+{
+    id = memory.getInt("id", 0);
+    code = memory.getString("code", "");
+}
+
+String Device::getTextField(String name)
+{
+    http.begin("http://192.168.1.8:5000/api/device/" + String(id) + "/" + String(code));
+    http.addHeader("Content-Type", "application/json");
+
+    int httpResponseCode = http.GET();
+
+    if (httpResponseCode > 0)
+    {
+        String response = http.getString();
+        deserializeJson(doc, response);
+
+        return doc["states"][String(name)].as<String>();
+    }
+    else
+    {
+        Serial.print("Error on sending POST: ");
+        Serial.println(httpResponseCode);
+
+        return "";
+    }
+
+    http.end();
+}
+
+float Device::getFloatField(String name)
+{
+    http.begin("http://192.168.1.8:5000/api/device/" + String(id) + "/" + String(code));
+    http.addHeader("Content-Type", "application/json");
+
+    int httpResponseCode = http.GET();
+
+    if (httpResponseCode > 0)
+    {
+        String response = http.getString();
+        deserializeJson(doc, response);
+
+        for (JsonObject state : doc["states"].as<JsonArray>())
+        {
+            if (state["name"].as<String>() == name)
+            {
+                return state["data"].as<float>(); // Return the data as float
+            }
+        }
+
+        return NAN; // Return NAN if state not found
+    }
+    else
+    {
+        Serial.print("Error on sending GET: ");
+        Serial.println(httpResponseCode);
+
+        return NAN; // Return NAN on error
     }
 
     http.end();
