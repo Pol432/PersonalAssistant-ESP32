@@ -6,6 +6,8 @@
 #include "Device.h"
 
 StepperMotor stepperMotor;
+String name = "cortina";
+Device myDevice(name, 4, 1, 1);
 
 String ssid;
 String password;
@@ -51,10 +53,9 @@ void setup()
     Serial.println("Connecting to WiFi..");
   }
 
-  String name = "cortina";
-
-  Device myDevice(name, 4, 1, 1);
   myDevice.createState(1, "status", "TEXT", "open", "power");
+
+  myDevice.init();
   // myDevice.createDevice();
 
   // Initialize the stepper motor
@@ -63,5 +64,6 @@ void setup()
 
 void loop()
 {
-  // Your main loop code here...
+  Serial.println(myDevice.getTextField("status"));
+  delay(2000);
 }
