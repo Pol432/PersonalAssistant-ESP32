@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*html": "html",
-        "httpclient.h": "c"
+        "httpclient.h": "c",
+        "typeinfo": "cpp"
     }
 }

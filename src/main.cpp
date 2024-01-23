@@ -2,18 +2,15 @@
 
 #include "BLEHandler.h"
 #include "PreferencesHandler.h"
-#include "StepperMotor.h"
 #include "Device.h"
+#include "DeviceConfig/DeviceConfig.h"
+#include "Main/Main.h"
 
-StepperMotor stepperMotor;
-String name = "cortina";
-Device myDevice(name, 4, 1, 1);
+Device myDevice(DeviceConfigName, 4, 1, DeviceConfigStatesNumber);
 
 String ssid;
 String password;
 bool created;
-
-String status;
 
 void setup()
 {
@@ -55,30 +52,14 @@ void setup()
     Serial.println("Connecting to WiFi..");
   }
 
-  myDevice.createState(1, "status", "TEXT", "open", "power");
-
+  InitDeviceConfig();
   myDevice.init();
   // myDevice.createDevice();
 
-  // Initialize the stepper motor
-  stepperMotor.begin();
+  ProgramSetup();
 }
 
 void loop()
 {
-  status = myDevice.getTextField("status");
-
-  if (status == "open")
-  {
-    stepperMotor.moveCurtains("open");
-    myDevice.changeField("status", "neutral");
-  }
-  else if (status == "close")
-  {
-    stepperMotor.moveCurtains("close");
-    myDevice.changeField("status", "neutral");
-  }
-
-  // Serial.println(status);
-  delay(4000);
+  ProgramLoop();
 }
