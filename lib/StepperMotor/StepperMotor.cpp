@@ -29,10 +29,15 @@ void StepperMotor::moveCurtains(String dir)
     int i = dir == "close" ? -1 : 1;
 
     start = millis();
-    while (millis() - start < 3000)
+    while (millis() - start < 4000)
     {
+        if (poleStep > 7)
+            poleStep = 0;
+        if (poleStep < 0)
+            poleStep = 7;
         poleStep += i;
         driverStepper(poleStep);
+        delay(1);
     }
 }
 

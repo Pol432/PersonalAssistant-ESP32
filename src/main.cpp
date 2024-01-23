@@ -13,6 +13,8 @@ String ssid;
 String password;
 bool created;
 
+String status;
+
 void setup()
 {
   Serial.begin(115200);
@@ -59,11 +61,24 @@ void setup()
   // myDevice.createDevice();
 
   // Initialize the stepper motor
-  // stepperMotor.begin();
+  stepperMotor.begin();
 }
 
 void loop()
 {
-  Serial.println(myDevice.getTextField("status"));
-  delay(2000);
+  status = myDevice.getTextField("status");
+
+  if (status == "open")
+  {
+    stepperMotor.moveCurtains("open");
+    myDevice.changeField("status", "neutral");
+  }
+  else if (status == "close")
+  {
+    stepperMotor.moveCurtains("close");
+    myDevice.changeField("status", "neutral");
+  }
+
+  // Serial.println(status);
+  delay(4000);
 }
