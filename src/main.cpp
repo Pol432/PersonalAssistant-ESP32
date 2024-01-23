@@ -52,6 +52,8 @@ void setup()
     Serial.println("Connecting to WiFi..");
   }
 
+  Serial.println("Successfully connected to WiFi!");
+
   InitDeviceConfig();
   myDevice.init();
   // myDevice.createDevice();
