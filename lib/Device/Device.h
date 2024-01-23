@@ -18,6 +18,8 @@ public:
     String getTextField(String name);
     float getFloatField(String name);
 
+    bool changeField(String name, String data);
+
 private:
     String generateRandomCode();
 

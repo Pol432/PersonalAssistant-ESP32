@@ -145,3 +145,24 @@ float Device::getFloatField(String name)
 
     http.end();
 }
+
+bool Device::changeField(String name, String data)
+{
+    http.begin("http://192.168.1.8:5000/api/device/" + String(id) + "/" + String(code));
+    http.addHeader("Content-Type", "application/json");
+
+    String patch_data = "{\"field\": \"" + String(name) + "\", \"data\": \"" + String(data) + "\"}";
+    int httpResponseCode = http.PATCH(patch_data);
+
+    if (httpResponseCode > 0)
+        return true;
+    else
+    {
+        Serial.print("Error on sending GET: ");
+        Serial.println(httpResponseCode);
+
+        return false;
+    }
+
+    http.end();
+}
