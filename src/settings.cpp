@@ -40,7 +40,6 @@ void setup()
 
       delay(10);
     }
-    memory.putBool("created", true);
   }
 
   Serial.println("Starting connection");
@@ -54,9 +53,12 @@ void setup()
 
   Serial.println("Successfully connected to WiFi!");
 
+  // Create device and its states
   InitDeviceConfig();
+
+  if (!memory.getBool("created", false))
+    myDevice.createDevice();
   myDevice.init();
-  // myDevice.createDevice();
 
   ProgramSetup();
 }
@@ -64,4 +66,5 @@ void setup()
 void loop()
 {
   ProgramLoop();
+  delay(4000);
 }

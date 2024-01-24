@@ -63,19 +63,20 @@ void Device::createDevice()
 
     int httpResponseCode = http.PUT(String(data));
 
-    if (httpResponseCode > 0)
+    if (httpResponseCode == 200)
     {
         String response = http.getString();
-        Serial.println(httpResponseCode);
+
         String idValue = response.substring(response.indexOf("\"id\":") + 6, response.indexOf(",", response.indexOf("\"id\":")));
         String deviceCodeValue = response.substring(response.indexOf("\"device_code\":") + 15, response.indexOf(",", response.indexOf("\"device_code\":")));
-        Serial.println(response);
+
         memory.putInt("id", idValue.toInt());
         memory.putString("code", idValue);
+        memory.putBool("created", true);
     }
     else
     {
-        Serial.print("Error on sending POST: ");
+        Serial.print("Error when creating Device: ");
         Serial.println(httpResponseCode);
     }
 
