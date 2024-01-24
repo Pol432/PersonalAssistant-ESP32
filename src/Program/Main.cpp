@@ -3,7 +3,7 @@
 #include "Device.h"
 extern Device myDevice;
 
-// Start from here ... [Delete before production]
+// Start from here ... [Delete this comment before production]
 String status;
 unsigned long start;
 int poleStep = 0;
@@ -53,9 +53,6 @@ void ProgramLoop()
         moveCurtains("close");
         myDevice.changeField("status", "neutral");
     }
-
-    // Serial.println(status);
-    delay(4000);
 }
 
 void driverStepper(int c)
