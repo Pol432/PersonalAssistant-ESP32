@@ -3,6 +3,7 @@
 #include <Arduino.h>
 
 String device_states[4] = {"name", "icon_name", "state_type", "data"};
+String API_URL = "http://172.31.97.42:5000/api";
 
 Device::Device(String name, int user_id, int room, int stateSize)
     : name(name), user_id(user_id), room(room), stateSize(stateSize)
@@ -58,7 +59,7 @@ void Device::createDevice()
 
     data += "]}";
 
-    http.begin("http://192.168.1.8:5000/api/device/" + String(user_id) + "/" + String(room));
+    http.begin(API_URL + "/device/" + String(user_id) + "/" + String(room));
     http.addHeader("Content-Type", "application/json");
 
     int httpResponseCode = http.PUT(String(data));
@@ -91,7 +92,7 @@ void Device::init()
 
 String Device::getTextField(String name)
 {
-    http.begin("http://192.168.1.8:5000/api/device/" + String(id) + "/" + String(code));
+    http.begin(API_URL + "/device/" + String(id) + "/" + String(code));
     http.addHeader("Content-Type", "application/json");
 
     int httpResponseCode = http.GET();
@@ -116,7 +117,7 @@ String Device::getTextField(String name)
 
 float Device::getFloatField(String name)
 {
-    http.begin("http://192.168.1.8:5000/api/device/" + String(id) + "/" + String(code));
+    http.begin(API_URL + "/device/" + String(id) + "/" + String(code));
     http.addHeader("Content-Type", "application/json");
 
     int httpResponseCode = http.GET();
@@ -149,7 +150,7 @@ float Device::getFloatField(String name)
 
 bool Device::changeField(String name, String data)
 {
-    http.begin("http://192.168.1.8:5000/api/device/" + String(id) + "/" + String(code));
+    http.begin(API_URL + "/device/" + String(id) + "/" + String(code));
     http.addHeader("Content-Type", "application/json");
 
     String patch_data = "{\"field\": \"" + String(name) + "\", \"data\": \"" + String(data) + "\"}";
