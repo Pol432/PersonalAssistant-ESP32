@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 String device_states[4] = {"name", "icon_name", "state_type", "data"};
-String API_URL = "http://172.31.97.42:5000/api";
+String API_URL = "https://pol452.pythonanywhere.com/api";
 
 Device::Device(String name, int user_id, int room, int stateSize)
     : name(name), user_id(user_id), room(room), stateSize(stateSize)
@@ -64,12 +64,19 @@ void Device::createDevice()
 
     int httpResponseCode = http.PUT(String(data));
 
+    Serial.println(data);
+
     if (httpResponseCode == 200)
     {
         String response = http.getString();
+        deserializeJson(doc, response);
 
-        String idValue = response.substring(response.indexOf("\"id\":") + 6, response.indexOf(",", response.indexOf("\"id\":")));
-        String deviceCodeValue = response.substring(response.indexOf("\"device_code\":") + 15, response.indexOf(",", response.indexOf("\"device_code\":")));
+        String idValue = doc["id"];
+        String deviceCodeValue = doc["device_code"];
+
+        Serial.println(response);
+        Serial.println(idValue);
+        Serial.println(deviceCodeValue);
 
         memory.putInt("id", idValue.toInt());
         memory.putString("code", idValue);
@@ -77,8 +84,10 @@ void Device::createDevice()
     }
     else
     {
+        String response = http.getString();
         Serial.print("Error when creating Device: ");
-        Serial.println(httpResponseCode);
+        Serial.print(httpResponseCode);
+        Serial.println(response);
     }
 
     http.end();

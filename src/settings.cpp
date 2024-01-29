@@ -6,7 +6,11 @@
 #include "DeviceConfig/DeviceConfig.h"
 #include "Main/Main.h"
 
-Device myDevice(DeviceConfigName, 4, 1, DeviceConfigStatesNumber);
+String DEVICE_NAME = "cortina"; // How is the device going to be called?
+int DEVICE_STATES_NUMBER = 1;   // How many fields does the device has?
+
+// Ignore
+Device myDevice(DEVICE_NAME, 1, 1, DEVICE_STATES_NUMBER);
 
 String ssid;
 String password;
@@ -20,6 +24,8 @@ void setup()
   // Getting Wi-Fi info
   ssid = memory.getString("ssid", "");
   password = memory.getString("password", "");
+
+  WiFi.disconnect();
 
   // If ssid or password weren't set before, wait for Bluetooth to set them
   if (password == "" || ssid == "")
