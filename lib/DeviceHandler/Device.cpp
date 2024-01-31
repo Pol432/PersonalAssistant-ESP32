@@ -42,6 +42,9 @@ void Device::createDevice()
     deviceData[0] = name;
     deviceData[1] = code;
 
+    String userID = memory.getString("user", "0");
+    String roomID = memory.getString("room", "0");
+
     String data = "{\"name\": \"" + String(name) + "\", \"device_code\": \"" + String(code) + "\", \"states\": [";
 
     for (int i = 0; i < stateSize; i++)
@@ -59,7 +62,7 @@ void Device::createDevice()
 
     data += "]}";
 
-    http.begin(API_URL + "/device/" + String(user_id) + "/" + String(room));
+    http.begin(API_URL + "/device/" + userID + "/" + roomID);
     http.addHeader("Content-Type", "application/json");
 
     int httpResponseCode = http.PUT(String(data));
@@ -79,7 +82,7 @@ void Device::createDevice()
         Serial.println(deviceCodeValue);
 
         memory.putInt("id", idValue.toInt());
-        memory.putString("code", idValue);
+        memory.putString("code", deviceCodeValue);
         memory.putBool("created", true);
     }
     else
