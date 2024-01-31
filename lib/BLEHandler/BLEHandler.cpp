@@ -1,34 +1,35 @@
 #include "BLEHandler.h"
 #include <Arduino.h>
 #include "PreferencesHandler.h"
-
+#include <ArduinoJson.h>
 BLEServer *pServer = NULL;
-BLECharacteristic *ssid_characteristic = NULL;
-BLECharacteristic *password_characteristic = NULL;
+BLECharacteristic *data_characteristic = NULL;
 
-String ssidValue = "";
-String passwordValue = "";
+String dataValue = "";
+JsonDocument doc;
 
-void updateSSID(const char *newSSID)
+// Function to split a string by a delimiter
+void updateData(const char *newdata)
 {
-    ssidValue = newSSID;
-    ssid_characteristic->setValue(const_cast<char *>(ssidValue.c_str()));
-    ssid_characteristic->notify();
-    memory.putString("ssid", ssidValue);
+    dataValue = newdata;
+    data_characteristic->setValue(const_cast<char *>(dataValue.c_str()));
+    data_characteristic->notify();
 
-    Serial.print("SSID WRITTEN: ");
+    deserializeJson(doc, dataValue);
+    String ssid = doc["ssid"];
+    String password = doc["password"];
+    String user = doc["user"];
+    String room = doc["room"];
+
+    memory.putString("ssid", ssid);
+    memory.putString("password", password);
+    memory.putString("user", user);
+    memory.putString("room", room);
+
     Serial.println(memory.getString("ssid"));
-}
-
-void updatePassword(const char *newPassword)
-{
-    passwordValue = newPassword;
-    password_characteristic->setValue(const_cast<char *>(passwordValue.c_str()));
-    password_characteristic->notify();
-    memory.putString("password", passwordValue);
-
-    Serial.print("PASSWORD WRITTEN: ");
     Serial.println(memory.getString("password"));
+    Serial.println(memory.getString("user"));
+    Serial.println(memory.getString("room"));
 }
 
 void CharacteristicsCallbacks::onWrite(BLECharacteristic *pCharacteristic)
@@ -36,13 +37,9 @@ void CharacteristicsCallbacks::onWrite(BLECharacteristic *pCharacteristic)
     Serial.print("Value Written ");
     Serial.println(pCharacteristic->getValue().c_str());
 
-    if (pCharacteristic == ssid_characteristic)
+    if (pCharacteristic == data_characteristic)
     {
-        updateSSID(pCharacteristic->getValue().c_str());
-    }
-    else if (pCharacteristic == password_characteristic)
-    {
-        updatePassword(pCharacteristic->getValue().c_str());
+        updateData(pCharacteristic->getValue().c_str());
     }
 
     Serial.println("FINISH BLE WRITE");
@@ -72,15 +69,8 @@ void initBLE()
     delay(100);
 
     // Create a BLE Characteristic
-    ssid_characteristic = pService->createCharacteristic(
-        SSID_CHARACTERISTIC_UUID,
-        BLECharacteristic::PROPERTY_READ |
-            BLECharacteristic::PROPERTY_WRITE |
-            BLECharacteristic::PROPERTY_NOTIFY |
-            BLECharacteristic::PROPERTY_INDICATE);
-
-    password_characteristic = pService->createCharacteristic(
-        PASSWORD_CHARACTERISTIC_UUID,
+    data_characteristic = pService->createCharacteristic(
+        DATA_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_READ |
             BLECharacteristic::PROPERTY_WRITE |
             BLECharacteristic::PROPERTY_NOTIFY |
@@ -91,9 +81,7 @@ void initBLE()
 
     // Start advertising
     pServer->getAdvertising()->start();
-
-    ssid_characteristic->setCallbacks(new CharacteristicsCallbacks());
-    password_characteristic->setCallbacks(new CharacteristicsCallbacks());
+    data_characteristic->setCallbacks(new CharacteristicsCallbacks());
 
     Serial.println("Waiting for a client connection to notify...");
 }
