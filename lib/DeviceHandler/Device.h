@@ -9,9 +9,11 @@
 class Device
 {
 public:
-    Device(String name, int user_id, int room, int stateSize);
+    Device(String name, int stateSize);
 
-    void createState(int stateID, String name, String stateType, String stateData, String iconName = "");
+    void createTextState(String name, String stateData, String iconName = "");
+    void createFloatState(String name, float stateData, String iconName);
+    void createSwitchState(String name, String stateData, String iconName, String switches[]);
     void createDevice();
     void init();
 
@@ -22,6 +24,7 @@ public:
 
 private:
     String generateRandomCode();
+    bool validField(String name, String data, String iconName);
 
     String name;
     String code;
@@ -29,9 +32,11 @@ private:
     int user_id;
     int room;
     int id;
+    int stateID = 0;
 
     String deviceData[2];
     String **states;
+    String **statesNames;
     HTTPClient http;
     JsonDocument doc;
 };

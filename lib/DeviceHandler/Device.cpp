@@ -2,19 +2,21 @@
 #include "PreferencesHandler.h"
 #include <Arduino.h>
 
-String device_states[4] = {"name", "icon_name", "state_type", "data"};
-String API_URL = "https://pol452.pythonanywhere.com/api";
+String device_states[5] = {"name", "icon_name", "state_type", "data", "switches"};
+// String API_URL = "https://pol452.pythonanywhere.com/api";
+String API_URL = "http://192.168.1.8:5000/api";
 
-Device::Device(String name, int user_id, int room, int stateSize)
+Device::Device(String name, int stateSize)
     : name(name), user_id(user_id), room(room), stateSize(stateSize)
 {
     code = generateRandomCode();
 
     // Dynamic allocation for states
     states = new String *[stateSize];
+    statesNames = new String *[stateSize];
     for (int i = 0; i < stateSize; ++i)
     {
-        states[i] = new String[4];
+        states[i] = new String[5];
     }
 }
 
@@ -28,13 +30,76 @@ String Device::generateRandomCode()
     return passcode;
 }
 
-void Device::createState(int stateID, String name, String stateType, String stateData, String iconName)
+bool Device::validField(String name, String data, String iconName)
 {
-    int ID = stateID - 1;
+    for (int i = 0; i < stateSize; ++i)
+    {
+        if (!(states[i][0] == name))
+            continue;
+
+        Serial.println("ERROR: Each device field name should be unique " + name);
+        return false;
+    }
+    return true;
+}
+
+void Device::createTextState(String name, String stateData, String iconName)
+{
+    if (!validField(name, stateData, iconName))
+        return;
+    int ID = stateID;
     states[ID][0] = name;
     states[ID][1] = iconName;
-    states[ID][2] = stateType;
+    states[ID][2] = "TEXT";
     states[ID][3] = stateData;
+    states[ID][4] = "[]";
+    stateID++;
+}
+
+void Device::createFloatState(String name, float stateData, String iconName)
+{
+    String stringData = String(stateData, 5);
+
+    if (!validField(name, stringData, iconName))
+        return;
+
+    int ID = stateID;
+    states[ID][0] = name;
+    states[ID][1] = iconName;
+    states[ID][2] = "FLOAT";
+    states[ID][3] = stringData;
+    states[ID][4] = "[]";
+    stateID++;
+}
+
+void Device::createSwitchState(String name, String stateData, String iconName, String switches[])
+{
+    if (!validField(name, stateData, iconName))
+        return;
+
+    String switchList = "[";
+
+    // Access the array size outside the function to get the correct size
+    int numSwitches = sizeof(switches) / sizeof(*switches);
+
+    for (int i = 0; i < numSwitches; i++)
+    {
+        switchList += String(switches[i]);
+        if (i < numSwitches - 1)
+        {
+            switchList += ","; // Add comma as separator
+        }
+    }
+    switchList += "]";
+
+    int ID = stateID;
+    states[ID][0] = name;
+    states[ID][1] = iconName;
+    states[ID][2] = "SWITCH";
+    states[ID][3] = stateData;
+    states[ID][4] = switchList;
+
+    stateID++;
 }
 
 void Device::createDevice()
@@ -50,9 +115,9 @@ void Device::createDevice()
     for (int i = 0; i < stateSize; i++)
     {
         data += String("{");
-        for (int j = 0; j < 4; j++) // Fix: Use j as the loop variable here
+        for (int j = 0; j < 5; j++)
         {
-            if (j != 3)
+            if (j != 4)
                 data += String("\"" + String(device_states[j]) + "\" : \"" + String(states[i][j]) + "\", ");
             else
                 data += String("\"" + String(device_states[j]) + "\" : \"" + String(states[i][j]) + "\"");
@@ -76,10 +141,6 @@ void Device::createDevice()
 
         String idValue = doc["id"];
         String deviceCodeValue = doc["device_code"];
-
-        Serial.println(response);
-        Serial.println(idValue);
-        Serial.println(deviceCodeValue);
 
         memory.putInt("id", idValue.toInt());
         memory.putString("code", deviceCodeValue);
@@ -114,7 +175,13 @@ String Device::getTextField(String name)
         String response = http.getString();
         deserializeJson(doc, response);
 
-        return doc["states"][String(name)].as<String>();
+        for (JsonObject state : doc["states"].as<JsonArray>())
+        {
+            if (state["name"].as<String>() == name)
+                return state["data"].as<String>(); // Return the data as float
+        }
+
+        return "";
     }
     else
     {
@@ -142,17 +209,19 @@ float Device::getFloatField(String name)
         for (JsonObject state : doc["states"].as<JsonArray>())
         {
             if (state["name"].as<String>() == name)
-            {
                 return state["data"].as<float>(); // Return the data as float
-            }
         }
 
         return NAN; // Return NAN if state not found
     }
     else
     {
-        Serial.print("Error on sending GET: ");
-        Serial.println(httpResponseCode);
+        String response = http.getString();
+
+        Serial.print("Error getting field: " + name + ": [");
+        Serial.print(httpResponseCode);
+        Serial.print("] " + response);
+        Serial.println();
 
         return NAN; // Return NAN on error
     }
@@ -172,8 +241,12 @@ bool Device::changeField(String name, String data)
         return true;
     else
     {
-        Serial.print("Error on sending GET: ");
-        Serial.println(httpResponseCode);
+        String response = http.getString();
+
+        Serial.print("Error changing field: " + name + ": [");
+        Serial.print(httpResponseCode);
+        Serial.print("] " + response);
+        Serial.println();
 
         return false;
     }
