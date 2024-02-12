@@ -5,6 +5,7 @@ extern Device myDevice;
 // Declare device fields here
 void InitDeviceConfig()
 {
-    // myDevice.createState(StateID, FieldName, FieldType, DefaultValue, IconName)
-    myDevice.createState(1, "status", "TEXT", "open", "power");
+    // myDevice.createTextState(String FieldName, String DefaultValue, String IconName);
+    // myDevice.createSwitchState(String FieldName, String DefaultValue, String IconName, String Switches[]);
+    // myDevice.createFloatState(String FieldName, float DefaultValue, String IconName);
 }

@@ -6,11 +6,11 @@
 #include "DeviceConfig/DeviceConfig.h"
 #include "Main/Main.h"
 
-String DEVICE_NAME = "cortina"; // How is the device going to be called?
-int DEVICE_STATES_NUMBER = 1;   // How many fields does the device has?
+char DEVICE_NAME[15] = "DeviceName"; // How is the device going to be called? No more than 15 characters
+int DEVICE_STATES_NUMBER = 1;        // How many fields does the device has?
 
-// Ignore
-Device myDevice(DEVICE_NAME, 1, 1, DEVICE_STATES_NUMBER);
+// Ignore the following lines of code
+Device myDevice(DEVICE_NAME, DEVICE_STATES_NUMBER);
 
 String ssid;
 String password;

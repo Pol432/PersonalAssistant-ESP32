@@ -25,24 +25,14 @@ void updateData(const char *newdata)
     memory.putString("password", password);
     memory.putString("user", user);
     memory.putString("room", room);
-
-    Serial.println(memory.getString("ssid"));
-    Serial.println(memory.getString("password"));
-    Serial.println(memory.getString("user"));
-    Serial.println(memory.getString("room"));
 }
 
 void CharacteristicsCallbacks::onWrite(BLECharacteristic *pCharacteristic)
 {
-    Serial.print("Value Written ");
-    Serial.println(pCharacteristic->getValue().c_str());
-
     if (pCharacteristic == data_characteristic)
     {
         updateData(pCharacteristic->getValue().c_str());
     }
-
-    Serial.println("FINISH BLE WRITE");
 }
 
 void MyServerCallbacks::onConnect(BLEServer *pServer)

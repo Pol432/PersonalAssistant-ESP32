@@ -13,7 +13,7 @@ public:
 
     void createTextState(String name, String stateData, String iconName = "");
     void createFloatState(String name, float stateData, String iconName);
-    void createSwitchState(String name, String stateData, String iconName, String switches[]);
+    void createSwitchState(String name, String stateData, String iconName, char *switches[]);
     void createDevice();
     void init();
 
@@ -21,6 +21,7 @@ public:
     float getFloatField(String name);
 
     bool changeField(String name, String data);
+    bool changeFloatField(String name, float data);
 
 private:
     String generateRandomCode();
