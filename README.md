@@ -28,7 +28,7 @@ In this function define all fields (Must be the same amount as specified in Devi
 | **Method**                    | **Description**                    | **Arguments**                                                | **Other Arguments** |
 | ----------------------------- | ---------------------------------- | ------------------------------------------------------------ | ------------------- |
 | `myDevice.createTextState()`  | _Create a state in String format_  | `String` FieldName, `String` DefaultValue, `String` IconName | N/A                 |
-| `myDevice.createSwitchState`  | _Get a state with specific values_ | `String` FieldName, `String` DefaultValue, `String` IconName | `char \*`Switches[] |
+| `myDevice.createSwitchState`  | _Get a state with specific values_ | `String` FieldName, `String` DefaultValue, `String` IconName | `char *`Switches[] |
 | `myDevice.createFloatState()` | _Create a state in float format_   | `String` FieldName, `String` DefaultValue, `String` IconName | N/A                 |
 
 Each field must be defined with their corresponding function, which takes the following arguments:
