@@ -6,6 +6,6 @@ extern Device myDevice;
 void InitDeviceConfig()
 {
     // myDevice.createTextState(String FieldName, String DefaultValue, String IconName);
-    // myDevice.createSwitchState(String FieldName, String DefaultValue, String IconName, String Switches[]);
+    // myDevice.createSwitchState(String FieldName, String DefaultValue, String IconName, char* Switches[]);
     // myDevice.createFloatState(String FieldName, float DefaultValue, String IconName);
 }
